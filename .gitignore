@@ -1,0 +1,10 @@
+# Global path to single directory.
+.idea/
+SZI.txt
+data/
+tools/
+
+# All cmake-build-debug directories.
+.idea
+cmake-build-debug
+#test
