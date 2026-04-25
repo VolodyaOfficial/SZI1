@@ -11,10 +11,10 @@
 
 using namespace std;
 
-static set<vector<int>> pathVisitedDFS;
-static set<vector<int>> allVisitedDFS;
+set<vector<int>> pathVisitedDFS;
+ set<vector<int>> allVisitedDFS;
 
-vector<int> makeGoalState(int rows, int cols) {
+vector<int> algorithms::makeGoalState(int rows, int cols) {
   vector<int> goal;
   for (int i = 1; i < rows * cols; ++i) {
     goal.push_back(i);
@@ -24,7 +24,7 @@ vector<int> makeGoalState(int rows, int cols) {
   return goal;
 }
 
-int findZero(const vector<int>& startBoard){
+int algorithms::findZero(const vector<int>& startBoard){
   for (int i = 0; i < startBoard.size(); ++i) {
     if (startBoard[i] == 0) {
       return i;
@@ -33,7 +33,7 @@ int findZero(const vector<int>& startBoard){
   return -1;
  }
 
-int manhattan(const vector<int>& board, int cols) {
+int algorithms::manhattan(const vector<int>& board, int cols) {
   int dist = 0;
 
   for (int i = 0; i < board.size(); ++i) {
@@ -50,11 +50,23 @@ int manhattan(const vector<int>& board, int cols) {
   }
   return dist;
 }
+int algorithms::hamming(const std::vector<int>& board, const std::vector<int>& goal) {
+  int count = 0;
 
-int heuristicValue(const vector<int>& board, const vector<int>& goal, int cols, const string& heuristic) {
-  // if (heuristic == "hamm") {
-  //   return hamming(board, goal);
-  // }
+  for (int i = 0; i < board.size(); ++i) {
+    if (board[i] != 0 && board[i] != goal[i]) {
+      ++count;
+    }
+  }
+
+  return count;
+}
+
+
+int algorithms::heuristicValue(const vector<int>& board, const vector<int>& goal, int cols, const string& heuristic) {
+   if (heuristic == "hamm") {
+     return hamming(board, goal);
+   }
 
   if (heuristic == "manh") {
     return manhattan(board, cols);
@@ -71,8 +83,8 @@ bool CompareAStar::operator()(const AStarNode& a, const AStarNode& b) const {
   return a.f > b.f;
 }
 
-static bool DFSrec(vector<int>& Board, int rows, int cols,
-              string& path, int zeroPos=0, int depth=0,
+bool algorithms::DFSrec(vector<int>& Board, int rows, int cols,
+              string& path, int zeroPos, int depth,
               int maxDepth, const vector<int>& goal, Result& result,
               char lastMove, const string& order){
 
@@ -99,7 +111,7 @@ static bool DFSrec(vector<int>& Board, int rows, int cols,
           swap(Board[zeroPos], Board[zeroPos-1]);
           if (pathVisitedDFS.find(Board) == pathVisitedDFS.end()){
             path+=move;
-            if (DFSrec(Board, rows, cols, path, zeroPos - 1, depth + 1, maxDepth, goal, result, move)){
+            if (DFSrec(Board, rows, cols, path, zeroPos - 1, depth + 1, maxDepth, goal, result, move, order)){
               return true;
             }
             path.pop_back();
@@ -111,7 +123,7 @@ static bool DFSrec(vector<int>& Board, int rows, int cols,
           swap(Board[zeroPos], Board[zeroPos+1]);
           if (pathVisitedDFS.find(Board) == pathVisitedDFS.end()){
             path+=move;
-          if (DFSrec(Board, rows, cols, path, zeroPos + 1, depth + 1, maxDepth, goal, result, move)){
+          if (DFSrec(Board, rows, cols, path, zeroPos + 1, depth + 1, maxDepth, goal, result, move, order)){
             return true;
           }
           path.pop_back();
@@ -123,7 +135,7 @@ static bool DFSrec(vector<int>& Board, int rows, int cols,
           swap(Board[zeroPos], Board[zeroPos-cols]);
           if (pathVisitedDFS.find(Board) == pathVisitedDFS.end()){
             path+=move;
-          if (DFSrec(Board, rows, cols, path, zeroPos - cols, depth + 1, maxDepth, goal, result, move)){
+          if (DFSrec(Board, rows, cols, path, zeroPos - cols, depth + 1, maxDepth, goal, result, move, order)){
             return true;
           }
           path.pop_back();
@@ -135,7 +147,7 @@ static bool DFSrec(vector<int>& Board, int rows, int cols,
           swap(Board[zeroPos], Board[zeroPos + cols]);
           if (pathVisitedDFS.find(Board) == pathVisitedDFS.end()){
             path+=move;
-          if (DFSrec(Board, rows, cols, path, zeroPos + cols, depth + 1, maxDepth, goal, result, move)){
+          if (DFSrec(Board, rows, cols, path, zeroPos + cols, depth + 1, maxDepth, goal, result, move, order)){
             return true;
           }
           path.pop_back();
@@ -149,7 +161,7 @@ static bool DFSrec(vector<int>& Board, int rows, int cols,
 }
 
 
-Result DFS(const vector<int>& startBoard, int rows, int cols, const string& order, int limit) {
+Result algorithms::DFS(const vector<int>& startBoard, int rows, int cols, const string& order, int limit) {
   auto startTime = chrono::high_resolution_clock::now();
 
   Result result;
@@ -174,7 +186,7 @@ Result DFS(const vector<int>& startBoard, int rows, int cols, const string& orde
   return result;
 }
 
-Result aStar(const vector<int>& startBoard, int rows, int cols, const string& heuristic){
+Result algorithms::aStar(const vector<int>& startBoard, int rows, int cols, const string& heuristic){
   auto startTime = chrono::high_resolution_clock::now();
 
   Result result;
@@ -300,4 +312,59 @@ Result aStar(const vector<int>& startBoard, int rows, int cols, const string& he
         return result;
   }
 
+Result algorithms::BFS(const vector<int>& startBoard, int rows, int cols, const string& order) {
+    auto startTime = chrono::high_resolution_clock::now();
+    Result result;
+    vector<int> goal = makeGoalState(rows, cols);
 
+    queue<Node> q;
+    set<vector<int>> visited;
+
+    int initialZero = findZero(startBoard);
+    Node startNode = {startBoard, "", initialZero, 'N'};
+    q.push(startNode);
+    visited.insert(startBoard);
+    result.visited++;
+
+    while (!q.empty()) {
+        Node current = q.front();
+        q.pop();
+        result.processed++;
+
+        // Оновлюємо максимальну глибину (це довжина шляху)
+        result.maxDepth = max(result.maxDepth, (int)current.path.size());
+
+        if (current.state == goal) {
+            result.path = current.path;
+            auto endTime = chrono::high_resolution_clock::now();
+            result.timeMs = chrono::duration<double, milli>(endTime - startTime).count();
+            return result;
+        }
+
+        for (char move : order) {
+            int newZeroPos = -1;
+
+            if (move == 'L' && (current.zeroPos % cols) != 0) newZeroPos = current.zeroPos - 1;
+            else if (move == 'R' && (current.zeroPos % cols) != (cols - 1)) newZeroPos = current.zeroPos + 1;
+            else if (move == 'U' && current.zeroPos >= cols) newZeroPos = current.zeroPos - cols;
+            else if (move == 'D' && current.zeroPos < (rows - 1) * cols) newZeroPos = current.zeroPos + cols;
+
+            if (newZeroPos != -1) {
+                vector<int> newBoard = current.state;
+                swap(newBoard[current.zeroPos], newBoard[newZeroPos]);
+
+                if (visited.find(newBoard) == visited.end()) {
+                    visited.insert(newBoard);
+                    result.visited++;
+                    Node nextNode = {newBoard, current.path + move, newZeroPos, move};
+                    q.push(nextNode);
+                }
+            }
+        }
+    }
+
+    result.path = "NOTHING";
+    auto endTime = chrono::high_resolution_clock::now();
+    result.timeMs = chrono::duration<double, milli>(endTime - startTime).count();
+    return result;
+}
