@@ -3,6 +3,8 @@
 SZI.txt
 data/
 tools/
+puzzles/
+
 
 # All cmake-build-debug directories.
 .idea
