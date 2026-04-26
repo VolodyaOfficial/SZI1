@@ -7,13 +7,13 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    // Перевіряємо, чи передано 5 параметрів (+1 на саму назву програми)
+
     if (argc != 6) {
         cerr << "Uzycie: " << argv[0] << " <strategia> <parametr> <plik_wej> <plik_sol> <plik_stats>" << endl;
         return 1;
     }
 
-    // Зчитуємо аргументи
+
     string strategy = argv[1];    // bfs, dfs, astr
     string parameter = argv[2];   // RDUL, LUDR, manh, hamm
     string inputFile = argv[3];
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     vector<int> board;
     int rows = 0, cols = 0;
 
-    // Використовуємо твою функцію з io.cpp для зчитування дошки
+
     if (!readBoardFromFile(inputFile, board, rows, cols)) {
         cerr << "Błąd: Nie mozna odczytac pliku " << inputFile << endl;
         return 1;
@@ -32,12 +32,12 @@ int main(int argc, char* argv[]) {
     algorithms solver;
     Result result;
 
-    // Вибираємо стратегію
+
     if (strategy == "bfs") {
         result = solver.BFS(board, rows, cols, parameter);
     } 
     else if (strategy == "dfs") {
-        int maxDepth = 20; // Максимальна глибина за умовою завдання
+        int maxDepth = 20; 
         result = solver.DFS(board, rows, cols, parameter, maxDepth);
     } 
     else if (strategy == "astr") {
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Використовуємо твої функції з io.cpp для збереження
+
     saveSolutionToFile(solFile, result);
     saveStatsToFile(statsFile, result);
 
